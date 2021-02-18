@@ -6,7 +6,7 @@
 
 //---------------------------------------------------------------------------
 // For user: you can disable or enable it
-//#define MEDIAINFO_DEBUG
+//#define __MEDIAINFO_DEBUG_AZUREBLOB__
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -42,13 +42,13 @@ using namespace ZenLib;
 using namespace std;
 //---------------------------------------------------------------------------
 // Debug stuff
-#ifdef MEDIAINFO_DEBUG
+#ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
     int64u Reader_File_Offset=0;
     int64u Reader_File_BytesRead_Total=0;
     int64u Reader_File_BytesRead=0;
     int64u Reader_File_Count=1;
     #include <iostream>
-#endif // MEDIAINFO_DEBUG
+#endif // __MEDIAINFO_DEBUG_AZUREBLOB__
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -394,12 +394,12 @@ size_t Reader_File::Format_Test_PerParser_Continue (MediaInfo_Internal* MI)
             //Seek (if needed)
             if (MI->Open_Buffer_Continue_GoTo_Get()!=(int64u)-1)
             {
-                #ifdef MEDIAINFO_DEBUG
+                #ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
                     std::cout<<std::hex<<Reader_File_Offset<<" - "<<Reader_File_Offset+Reader_File_BytesRead<<" : "<<std::dec<<Reader_File_BytesRead<<" bytes"<<std::endl;
                     Reader_File_Offset=MI->Open_Buffer_Continue_GoTo_Get();
                     Reader_File_BytesRead=0;
                     Reader_File_Count++;
-                #endif //MEDIAINFO_DEBUG
+                #endif //__MEDIAINFO_DEBUG_AZUREBLOB__
 
                 #if MEDIAINFO_READTHREAD
                     Destroy_Thread(MI);
@@ -757,10 +757,10 @@ size_t Reader_File::Format_Test_PerParser_Continue (MediaInfo_Internal* MI)
               || (MI->Config.File_Size==(int64u)-1 && MI->Config.File_Names_Pos>=MI->Config.File_Names.size() && F.Position_Get()>=F.Size_Get())))
                 break; //Finished, and no other data
 
-            #ifdef MEDIAINFO_DEBUG
+            #ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
                 Reader_File_BytesRead_Total+=MI->Config.File_Buffer_Size;
                 Reader_File_BytesRead+=MI->Config.File_Buffer_Size;
-            #endif //MEDIAINFO_DEBUG
+            #endif //__MEDIAINFO_DEBUG_AZUREBLOB__
 
             //Parser
             Status=MI->Open_Buffer_Continue(MI->Config.File_Buffer, MI->Config.File_Buffer_Size);
@@ -814,10 +814,10 @@ size_t Reader_File::Format_Test_PerParser_Continue (MediaInfo_Internal* MI)
         MI->Config.File_Buffer_Size_Max=0;
     }
 
-    #ifdef MEDIAINFO_DEBUG
+    #ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
         std::cout<<std::hex<<Reader_File_Offset<<" - "<<Reader_File_Offset+Reader_File_BytesRead<<" : "<<std::dec<<Reader_File_BytesRead<<" bytes"<<std::endl;
         std::cout<<"Total: "<<std::dec<<Reader_File_BytesRead_Total<<" bytes in "<<Reader_File_Count<<" blocks"<<std::endl;
-    #endif //MEDIAINFO_DEBUG
+    #endif //__MEDIAINFO_DEBUG_AZUREBLOB__
 
     if (!MI->Config.File_KeepInfo_Get())
     {

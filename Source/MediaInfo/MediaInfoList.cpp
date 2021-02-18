@@ -6,7 +6,7 @@
 
 //---------------------------------------------------------------------------
 // For user: you can disable or enable it
-//#define MEDIAINFO_DEBUG
+//#define __MEDIAINFO_DEBUG_AZUREBLOB__
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -36,51 +36,51 @@ using namespace ZenLib;
 //To clarify the code
 namespace MediaInfoList_Debug
 {
-#ifdef MEDIAINFO_DEBUG
+#ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
     #include <stdio.h>
     FILE* F;
     std::string Debug;
 
-    #undef MEDIAINFO_DEBUG
-    #define MEDIAINFO_DEBUG(_TOAPPEND) \
+    #undef __MEDIAINFO_DEBUG_AZUREBLOB__
+    #define __MEDIAINFO_DEBUG_AZUREBLOB__(_TOAPPEND) \
         F=fopen("MediaInfoList_Debug.txt", "a+t"); \
         Debug.clear(); \
         _TOAPPEND; \
         Debug+="\r\n"; \
         fwrite(Debug.c_str(), Debug.size(), 1, F); \
         fclose(F);
-#else // MEDIAINFO_DEBUG
-    #define MEDIAINFO_DEBUG(_TOAPPEND)
-#endif // MEDIAINFO_DEBUG
+#else // __MEDIAINFO_DEBUG_AZUREBLOB__
+    #define __MEDIAINFO_DEBUG_AZUREBLOB__(_TOAPPEND)
+#endif // __MEDIAINFO_DEBUG_AZUREBLOB__
 
-#ifdef MEDIAINFO_DEBUG
+#ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
 #define EXECUTE_VOID(_METHOD,_DEBUGB) \
         ((MediaInfo_Internal*)Internal)->_METHOD;
-#else //MEDIAINFO_DEBUG
+#else //__MEDIAINFO_DEBUG_AZUREBLOB__
 #define EXECUTE_VOID(_METHOD,_DEBUGB) \
         ((MediaInfo_Internal*)Internal)->_METHOD; \
-        MEDIAINFO_DEBUG(_DEBUGB)
-#endif //MEDIAINFO_DEBUG
+        __MEDIAINFO_DEBUG_AZUREBLOB__(_DEBUGB)
+#endif //__MEDIAINFO_DEBUG_AZUREBLOB__
 
-#ifdef MEDIAINFO_DEBUG
+#ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
 #define EXECUTE_INT(_METHOD,_DEBUGB) \
         return ((MediaInfo_Internal*)Internal)->_METHOD;
-#else //MEDIAINFO_DEBUG
+#else //__MEDIAINFO_DEBUG_AZUREBLOB__
 #define EXECUTE_INT(_METHOD, _DEBUGB) \
         int64u ToReturn=((MediaInfo_Internal*)Internal)->_METHOD; \
-        MEDIAINFO_DEBUG(_DEBUGB) \
+        __MEDIAINFO_DEBUG_AZUREBLOB__(_DEBUGB) \
         return ToReturn;
-#endif //MEDIAINFO_DEBUG
+#endif //__MEDIAINFO_DEBUG_AZUREBLOB__
 
-#ifdef MEDIAINFO_DEBUG
+#ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
 #define EXECUTE_STRING(_METHOD,_DEBUGB) \
         return ((MediaInfo_Internal*)Internal)->_METHOD;
-#else //MEDIAINFO_DEBUG
+#else //__MEDIAINFO_DEBUG_AZUREBLOB__
 #define EXECUTE_STRING(_METHOD,_DEBUGB) \
         Ztring ToReturn=((MediaInfo_Internal*)Internal)->_METHOD; \
-        MEDIAINFO_DEBUG(_DEBUGB) \
+        __MEDIAINFO_DEBUG_AZUREBLOB__(_DEBUGB) \
         return ToReturn;
-#endif //MEDIAINFO_DEBUG
+#endif //__MEDIAINFO_DEBUG_AZUREBLOB__
 }
 using namespace MediaInfoList_Debug;
 
@@ -95,7 +95,7 @@ namespace MediaInfoLib
 //Constructeurs
 MediaInfoList::MediaInfoList(size_t Count_Init)
 {
-    MEDIAINFO_DEBUG(Debug+="Construction";)
+    __MEDIAINFO_DEBUG_AZUREBLOB__(Debug+="Construction";)
     Internal=new MediaInfoList_Internal(Count_Init);
 }
 
@@ -103,7 +103,7 @@ MediaInfoList::MediaInfoList(size_t Count_Init)
 //Destructeur
 MediaInfoList::~MediaInfoList()
 {
-    MEDIAINFO_DEBUG(Debug+="Destruction";)
+    __MEDIAINFO_DEBUG_AZUREBLOB__(Debug+="Destruction";)
     delete Internal; //Internal=NULL;
 }
 
@@ -114,7 +114,7 @@ MediaInfoList::~MediaInfoList()
 //---------------------------------------------------------------------------
 size_t MediaInfoList::Open(const String &File, const fileoptions_t Options)
 {
-    MEDIAINFO_DEBUG(Debug+="Open, File=";Debug+=Ztring(File).To_Local().c_str();)
+    __MEDIAINFO_DEBUG_AZUREBLOB__(Debug+="Open, File=";Debug+=Ztring(File).To_Local().c_str();)
     return Internal->Open(File, Options);
 }
 

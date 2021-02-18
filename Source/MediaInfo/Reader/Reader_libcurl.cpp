@@ -6,7 +6,7 @@
 
 //---------------------------------------------------------------------------
 // For user: you can disable or enable it
-//#define MEDIAINFO_DEBUG
+//#define __MEDIAINFO_DEBUG_AZUREBLOB__
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -50,9 +50,9 @@
 using namespace tinyxml2;
 using namespace ZenLib;
 using namespace std;
-#ifdef MEDIAINFO_DEBUG
+#ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
     #include <iostream>
-#endif // MEDIAINFO_DEBUG
+#endif // __MEDIAINFO_DEBUG_AZUREBLOB__
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -76,7 +76,8 @@ namespace Http
             Input           = Input.substr(Begin, Input.size() - Begin);
         }
     }
-    static void CutTail(std::string &Input, std::string &Output, const std::string &Delimiter)
+    
+   static void CutTail(std::string &Input, std::string &Output, const std::string &Delimiter)
     {
         // Remove the delimiter and everything that follows
         size_t Delimiter_Pos = Input.find(Delimiter);
@@ -375,11 +376,11 @@ struct Reader_libcurl::curl_data
         bool            NextPacket;
     #endif //MEDIAINFO_NEXTPACKET
     time_t              Time_Max;
-    #ifdef MEDIAINFO_DEBUG
+    #ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
         int64u          Debug_BytesRead_Total;
         int64u          Debug_BytesRead;
         int64u          Debug_Count;
-    #endif // MEDIAINFO_DEBUG
+    #endif // __MEDIAINFO_DEBUG_AZUREBLOB__
 
     curl_data()
     {
@@ -401,11 +402,11 @@ struct Reader_libcurl::curl_data
             NextPacket=false;
         #endif //MEDIAINFO_NEXTPACKET
         Time_Max=0;
-        #ifdef MEDIAINFO_DEBUG
+        #ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
             Debug_BytesRead_Total=0;
             Debug_BytesRead=0;
             Debug_Count=1;
-        #endif // MEDIAINFO_DEBUG
+        #endif // __MEDIAINFO_DEBUG_AZUREBLOB__
     }
 };
 
@@ -648,10 +649,10 @@ void Amazon_AWS_Manage(Http::Url &File_URL, Reader_libcurl::curl_data* Curl_Data
 //---------------------------------------------------------------------------
 size_t libcurl_WriteData_CallBack(void *ptr, size_t size, size_t nmemb, void *data)
 {
-    #ifdef MEDIAINFO_DEBUG
+    #ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
         ((Reader_libcurl::curl_data*)data)->Debug_BytesRead_Total+=size*nmemb;
         ((Reader_libcurl::curl_data*)data)->Debug_BytesRead+=size*nmemb;
-    #endif //MEDIAINFO_DEBUG
+    #endif //__MEDIAINFO_DEBUG_AZUREBLOB__
 
     //Init
     if (!((Reader_libcurl::curl_data*)data)->Init_AlreadyDone)
@@ -1145,8 +1146,13 @@ size_t Reader_libcurl::Format_Test_PerParser(MediaInfo_Internal* MI, const Strin
     curl_easy_setopt(Curl_Data->Curl, CURLOPT_WRITEFUNCTION, &libcurl_WriteData_CallBack);
     curl_easy_setopt(Curl_Data->Curl, CURLOPT_WRITEDATA, Curl_Data);
     curl_easy_setopt(Curl_Data->Curl, CURLOPT_ERRORBUFFER, Curl_Data->ErrorBuffer);
+    // *** quick fix by musma21@msn.com @./MediaInfoLib/Source/MediaInfo/Reader/Reader_libcurl.cpp 
+    Curl_Data->HttpHeader = curl_slist_append (Curl_Data->HttpHeader, "x-ms-version: 2020-04-08");
     curl_easy_setopt(Curl_Data->Curl, CURLOPT_HTTPHEADER, Curl_Data->HttpHeader);
-
+    #ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
+    std::cout << "*** quick fix *** HttpHeader: " << (Curl_Data->HttpHeader)->data << std::endl;
+    #endif // __MEDIAINFO_DEBUG_AZUREBLOB__
+    
     //Test the format with buffer
     return Format_Test_PerParser_Continue(MI);
 }
@@ -1186,11 +1192,12 @@ size_t Reader_libcurl::Format_Test_PerParser_Continue (MediaInfo_Internal* MI)
             //GoTo
             if (Curl_Data->MI->Open_Buffer_Continue_GoTo_Get()!=(int64u)-1)
             {
-                #ifdef MEDIAINFO_DEBUG
-                    std::cout<<std::hex<<Curl_Data->File_Offset-Curl_Data->Debug_BytesRead<<" - "<<Curl_Data->File_Offset<<" : "<<std::dec<<Curl_Data->Debug_BytesRead<<" bytes"<<std::endl;
+                #ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
+                    // std::cout<<std::hex<<Curl_Data->File_Offset-Curl_Data->Debug_BytesRead<<" - "<<Curl_Data->File_Offset<<" : "<<std::dec<<Curl_Data->Debug_BytesRead<<" bytes"<<std::endl;
+                    std::cout<<"[Bytes Read] "<<std::hex<<Curl_Data->FileOffset-Curl_Data->Debug_BytesRead<<" - "<<Curl_Data->FileOffset<<" : "<<std::dec<<Curl_Data->Debug_BytesRead<<" bytes"<<std::endl;
                     Curl_Data->Debug_BytesRead=0;
                     Curl_Data->Debug_Count++;
-                #endif //MEDIAINFO_DEBUG
+                #endif //__MEDIAINFO_DEBUG_AZUREBLOB__
                 CURLcode Code;
                 CURL* Temp=curl_easy_duphandle(Curl_Data->Curl);
                 if (Temp==0)
@@ -1451,10 +1458,11 @@ size_t Reader_libcurl::Format_Test_PerParser_Continue (MediaInfo_Internal* MI)
         }
     }
 
-    #ifdef MEDIAINFO_DEBUG
-        std::cout<<std::hex<<Curl_Data->File_Offset-Curl_Data->Debug_BytesRead<<" - "<<Curl_Data->File_Offset<<" : "<<std::dec<<Curl_Data->Debug_BytesRead<<" bytes"<<std::endl;
-        std::cout<<"Total: "<<std::dec<<Curl_Data->Debug_BytesRead_Total<<" bytes in "<<Curl_Data->Debug_Count<<" blocks"<<std::endl;
-    #endif //MEDIAINFO_DEBUG
+    #ifdef __MEDIAINFO_DEBUG_AZUREBLOB__
+        // std::cout<<std::hex<<Curl_Data->File_Offset-Curl_Data->Debug_BytesRead<<" - "<<Curl_Data->File_Offset<<" : "<<std::dec<<Curl_Data->Debug_BytesRead<<" bytes"<<std::endl;
+        std::cout<<"[Bytes Read] "<<std::hex<<Curl_Data->FileOffset-Curl_Data->Debug_BytesRead<<" - "<<Curl_Data->FileOffset<<" : "<<std::dec<<Curl_Data->Debug_BytesRead<<" bytes"<<std::endl;
+        std::cout<<"[Total Bytes Read] "<<std::dec<<Curl_Data->Debug_BytesRead_Total<<" bytes in "<<Curl_Data->Debug_Count<<" blocks"<<std::endl;
+    #endif //__MEDIAINFO_DEBUG_AZUREBLOB__
 
     //Is this file detected?
     if (!Curl_Data->Status[File__Analyze::IsAccepted])

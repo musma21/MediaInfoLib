@@ -44,6 +44,8 @@ dnl #########################################################################
 dnl -------------------------------------------------------------------------
 dnl Enable
 dnl
+dnl --enable-debug-azureblob added by musma21@msn.com
+AC_ARG_ENABLE(debug-azureblob,  AC_HELP_STRING([--enable-debug-azureblob],  [Enable my owndebuggging]),                   , enable_debug_azureblob=no)
 AC_ARG_ENABLE(debug,            AC_HELP_STRING([--enable-debug],            [Enable full debug]),                         , enable_debug=no)
 AC_ARG_ENABLE(gprof,            AC_HELP_STRING([--enable-gprof],            [Enable gprof log]),                          , enable_gprof=no)
 AC_ARG_ENABLE(visibility,       AC_HELP_STRING([--enable-visibility],       [Enable hidden visibility]),                  , enable_visibility=no)
@@ -711,6 +713,7 @@ fi
 dnl -------------------------------------------------------------------------
 dnl libtinyxml2
 dnl
+dnl --enable-debug-azureblob seems implicitly use libtinyxml2...
 if test "$with_libtinyxml2" = "yes"; then
 	PKG_CHECK_MODULES([TINYXML2], [tinyxml2])
 	CXXFLAGS="$CXXFLAGS $TINYXML2_CXXFLAGS"
@@ -720,7 +723,12 @@ if test "$with_libtinyxml2" = "yes"; then
 	AM_CONDITIONAL(COMPILE_TINYXML2, false)
 	using_libtinyxml2="system"
 else
-	CXXFLAGS="$CXXFLAGS -I../../../Source/ThirdParty/tinyxml2"
+	TINYXML2_CFLAGS="-I../../../Source/ThirdParty/tinyxml2"
+	TINYXML2_CXXFLAGS="-I../../../Source/ThirdParty/tinyxml2"
+	TINYXML2_LIBS="../../../Source/ThirdParty/tinyxml2/libtinyxml2.a"
+	CFLAGS="$CFLAGS $TINYXML2_CFLAGS"
+	CXXFLAGS="$CXXFLAGS $TINYXML2_CXXFLAGS"
+	dnl CXXFLAGS="$CXXFLAGS -I../../../Source/ThirdParty/tinyxml2"
 	using_libtinyxml2="internal"
 	AM_CONDITIONAL(COMPILE_TINYXML2, true)
 fi
@@ -818,6 +826,13 @@ dnl ### C/C++ compiler options used to compile
 dnl #########################################################################
 
 dnl -------------------------------------------------------------------------
+dnl for debugging on access to azureblob
+dnl
+if test "$enable_debug_azureblob" = "yes"; then
+        CXXFLAGS="$CFLAGS -D__MEDIAINFO_DEBUG_AZUREBLOB__ -DMEDIAINFO_LIBMMS_NO"
+fi
+
+dnl -------------------------------------------------------------------------
 dnl Unicode
 dnl
 if test "$enable_unicode" = "yes"; then
@@ -913,6 +928,7 @@ fi
 echo ""
 echo "Configured MediaInfoLib for '$build'"
 echo ""
+echo "  DEBUG_AZUREBLOB?                                        $enable_debug_azureblob"
 echo "  Unicode?                                                $enable_unicode"
 echo "  Using ZenLib?                                           $with_zenlib"
 echo "  Using libcurl?                                          $using_libcurl"
