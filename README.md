@@ -14,7 +14,14 @@ See License.html for more information
 # Some changes for access to Azure Blob storage
 
 
-MediaInfoLib library sets "x-ms-range" HTTP header to send HTTP/1.1 range request ([RFC 7233](https://tools.ietf.org/html/rfc7233)). Azure Blob storage accepts the range request only when "x-ms-version" is set to 2011-08-18 or higher ([Specifying the range header for Blob service operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-the-range-header-for-blob-service-operations)). However, with current Mediainfo, there's no way to specify the custom HTTP header. 
+MediaInfoLib library sets "x-ms-range" HTTP header to send HTTP/1.1 range request ([RFC 7233](https://tools.ietf.org/html/rfc7233)). Azure Blob storage accepts the range request only when "x-ms-version" is set to 2011-08-18 or higher ([Specifying the range header for Blob service operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-the-range-header-for-blob-service-operations)). However, with current Mediainfo, there's no way to specify the custom HTTP header. When fetching a media file in Azure Blob, MediaInfo stops complaining as below : 
+
+```sh
+mediainfo http://your_stroage_account.blob.core.windows.net/your_container/mediafile.mp4
+...
+E: http://your_stroage_account.blob.core.windows.net/your_container/mediafile.mp4, 
+HTTP server doesn't seem to support byte ranges. Cannot resume.
+```
 
 Adding the below single line would be a quick fix (Reader_libcurl::Format_Test_PerParser() in Reader_libcurl.cpp) : 
 
@@ -23,7 +30,7 @@ Curl_Data->HttpHeader = curl_slist_append (Curl_Data->HttpHeader, "x-ms-version:
 ```
 
 
-That being said, still it would be better to add an command line option to set the custom HTTP header, so here, let me give it a try to add the new feature. Once practical progress be made, I will file an issue to the main repo ([MediaArea/MediaInfoLib](https://github.com/MediaArea/MediaInfoLib/)). Meanwhile, just for tracing purpose, ```MEDIAINFO_DEBUG``` preprocessor directive has been replaced with ```__MEDIAINFO_DEBUG_AZUREBLOB__``` in some files - ```Reader_File.cpp, Reader_libcurl.cpp, and MediaInfoList.cpp```; however, the directive should be effective only within this fetch of mine.
+That being said, still it would be better to add an command line option to set the custom HTTP header, so here, let me give it a try to add the new feature. Once practical progress be made, I will file an issue to the main repo ([MediaArea/MediaInfoLib](https://github.com/MediaArea/MediaInfoLib/)). Meanwhile, just for tracing purpose, ```MEDIAINFO_DEBUG``` preprocessor directive has been replaced with ```__MEDIAINFO_DEBUG_AZUREBLOB__``` in some files - ```Reader_File.cpp, Reader_libcurl.cpp, and MediaInfoList.cpp```; however, the directive should be effective only within this fetch of mine. Welcome anyone who can add some help developing the new feature! 
 
 
 ## How to build under macOS and Linux 
